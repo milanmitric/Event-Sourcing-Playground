@@ -1,8 +1,10 @@
 module Tests
 
-open System
+open FsUnit.Xunit
 open Xunit
+
 
 [<Fact>]
 let ``My test`` () =
-    Assert.True(true)
+    let result = true
+    result |> should equal true
