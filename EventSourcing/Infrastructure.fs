@@ -11,20 +11,19 @@ type private Msg<'Event> =
 let initialize (): EventStore<'Event> =
     let mailbox =
         MailboxProcessor.Start(fun inbox ->
-            let rec loop history =
+            let rec innerLoop history =
                 async {
                     match! inbox.Receive() with
-                    | Append events -> return! loop (history @ events)
+                    | Append events -> return! innerLoop (history @ events)
                     | Get channel ->
                         channel.Reply history
-                        return! loop history
+                        return! innerLoop history
                 }
 
-            loop [])
-
+            innerLoop [])
 
     let get () = mailbox.PostAndReply Get
 
-    let append events = mailbox.Post(Append events)
+    let append events = events |> Append |> mailbox.Post
 
     { Get = get; Append = append }
