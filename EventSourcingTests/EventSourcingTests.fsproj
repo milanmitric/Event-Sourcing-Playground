@@ -8,8 +8,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TestInfrastructure.fs" />
+    <Compile Include="TestData.fs" />
     <Compile Include="EventStoreTests.fs" />
     <Compile Include="ProjectionsTests.fs" />
+    <Compile Include="BehaviourTests.fs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />

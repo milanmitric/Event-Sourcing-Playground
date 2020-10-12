@@ -8,23 +8,31 @@ type Remote = Remote of string
 
 type Event =
     | RemoteWentOnline of Remote
+    | RemoteWasAlreadyOnline of Remote
     | RemoteWentOffline of Remote
     | RemoteWasScanned of Remote
+    | RemoteWasNotFound of Remote
 
-type EventStore<'Event> =
-    { Get: unit -> 'Event list
-      Append: 'Event list -> unit }
+module Core =
 
-type Projection<'State, 'Event> =
-    { Init: 'State
-      Update: 'State -> 'Event -> 'State }
+    type EventProducer<'Event> = 'Event list -> 'Event list
 
-let project (projection: Projection<_, _>) events =
-    events
-    |> List.fold projection.Update projection.Init
+    type EventStore<'Event> =
+        { Get: unit -> 'Event list
+          Append: 'Event list -> unit
+          Evolve: EventProducer<'Event> -> unit }
+
+    type Projection<'State, 'Event> =
+        { Init: 'State
+          Update: 'State -> 'Event -> 'State }
+
+    let project (projection: Projection<_, _>) events =
+        events
+        |> List.fold projection.Update projection.Init
 
 
 module Projections =
+    open Core
 
     let toRemoteStatus: Projection<Map<Remote, RemoteStatus>, Event> =
         let updateRemoteStatus state event =
@@ -50,3 +58,11 @@ module Projections =
 
         { Init = Map.empty
           Update = countScanStatistics }
+
+let onScan remote events =
+    let currentState =
+        events |> Core.project Projections.toRemoteStatus
+
+    match currentState |> Map.tryFind remote with
+    | Some state -> if state = Online then [ RemoteWasAlreadyOnline remote ] else [ RemoteWentOnline remote ]
+    | None -> [ RemoteWasNotFound remote ]
