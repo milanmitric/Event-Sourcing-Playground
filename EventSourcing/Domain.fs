@@ -1,8 +1,12 @@
 module Domain
 
+type RemoteStatus = 
+    | Online
+    | Offline
+
 type Remote = Remote of string
 
 type Event =
-    | RemoteOnline of Remote
-    | RemoteOffline of Remote
-    | RemoteScan of Remote
+    | RemoteWentOnline of Remote
+    | RemoteWentOffline of Remote
+    | RemoteWasScanned of Remote

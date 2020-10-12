@@ -13,7 +13,7 @@ let project (projection: Projection<_,_> ) events =
 
 let countScanStatistics state event =
     match event with
-    | RemoteWasScaned remote ->
+    | RemoteWasScanned remote ->
         let scanCount = 
             state 
             |> Map.tryFind remote
