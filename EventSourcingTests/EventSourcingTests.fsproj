@@ -12,7 +12,7 @@
     <Compile Include="TestData.fs" />
     <Compile Include="EventStoreTests.fs" />
     <Compile Include="ProjectionsTests.fs" />
-    <Compile Include="BehaviourTests.fs" />
+    <Compile Include="RemoteSpecifications.fs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />

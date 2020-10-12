@@ -59,10 +59,11 @@ module Projections =
         { Init = Map.empty
           Update = countScanStatistics }
 
-let onScan remote events =
-    let currentState =
-        events |> Core.project Projections.toRemoteStatus
+module Behaviour =
+    let onScan remote events =
+        let currentState =
+            events |> Core.project Projections.toRemoteStatus
 
-    match currentState |> Map.tryFind remote with
-    | Some state -> if state = Online then [ RemoteWasAlreadyOnline remote ] else [ RemoteWentOnline remote ]
-    | None -> [ RemoteWasNotFound remote ]
+        match currentState |> Map.tryFind remote with
+        | Some state -> if state = Online then [ RemoteWasAlreadyOnline remote ] else [ RemoteWentOnline remote ]
+        | None -> [ RemoteWasNotFound remote ]

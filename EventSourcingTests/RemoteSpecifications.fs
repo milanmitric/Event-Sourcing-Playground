@@ -1,6 +1,7 @@
-module BehaviourTests
+module RemoteSpecifications.fs
 
 open Domain
+open Domain.Behaviour
 open FsUnit
 open TestData
 open Xunit
