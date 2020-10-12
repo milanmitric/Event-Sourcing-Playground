@@ -27,3 +27,11 @@ let initialize (): EventStore<'Event> =
     let append events = events |> Append |> mailbox.Post
 
     { Get = get; Append = append }
+
+type Projection<'State, 'Event> =
+    { Init: 'State
+      Update: 'State -> 'Event -> 'State }
+
+let project (projection: Projection<_, _>) events =
+    events
+    |> List.fold projection.Update projection.Init

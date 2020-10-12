@@ -1,44 +1,29 @@
 module Projections
 
 open Domain
+open Infrastructure
 
-type Projection<'State, 'Event> = 
-    {
-        Init : 'State
-        Update : 'State -> 'Event -> 'State
-    }
+let toRemoteStatus: Projection<Map<Remote, RemoteStatus>, Event> =
+    let updateRemoteStatus state event =
+        match event with
+        | RemoteWentOnline remote -> state |> Map.add remote Online
+        | RemoteWentOffline remote -> state |> Map.add remote Offline
+        | _ -> state
 
-let project (projection: Projection<_,_> ) events =
-    events |> List.fold projection.Update projection.Init
+    { Init = Map.empty
+      Update = updateRemoteStatus }
 
-let countScanStatistics state event =
-    match event with
-    | RemoteWasScanned remote ->
-        let scanCount = 
-            state 
-            |> Map.tryFind remote
-            |> Option.defaultValue 0
-        
-        Map.add remote (scanCount + 1) state
-    | _ -> state
+let toScanStatistics: Projection<Map<Remote, int>, Event> =
+    let countScanStatistics state event =
+        match event with
+        | RemoteWasScanned remote ->
+            let scanCount =
+                state
+                |> Map.tryFind remote
+                |> Option.defaultValue 0
 
-let updateRemoteStatus state event =
-    match event with 
-    | RemoteWentOnline remote ->
-        state |> Map.add remote Online
-    | RemoteWentOffline remote ->
-        state |> Map.add remote Offline
-    | _ -> state
+            Map.add remote (scanCount + 1) state
+        | _ -> state
 
-
-let toRemoteStatus : Projection<Map<Remote, RemoteStatus>, Event> =
-    {
-        Init = Map.empty
-        Update = updateRemoteStatus
-    }
-
-let toScanStatistics : Projection<Map<Remote, int>, Event> =
-    {
-       Init = Map.empty
-       Update = countScanStatistics
-    }
+    { Init = Map.empty
+      Update = countScanStatistics }

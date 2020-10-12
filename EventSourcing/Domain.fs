@@ -1,6 +1,6 @@
 module Domain
 
-type RemoteStatus = 
+type RemoteStatus =
     | Online
     | Offline
 
