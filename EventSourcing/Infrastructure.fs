@@ -3,31 +3,62 @@ module Infrastructure
 open Domain.Core
 
 type private Msg<'Event> =
-    | Append of 'Event list
-    | Get of AsyncReplyChannel<'Event list>
-    | Evolve of EventProducer<'Event>
+    | Append of Aggregate * 'Event list
+    | Get of AsyncReplyChannel<Map<Aggregate, 'Event list>>
+    | GetStream of Aggregate * AsyncReplyChannel<'Event list>
+    | Evolve of Aggregate * EventProducer<'Event>
+
+let private streamEventsFrom history aggregate =
+    history
+    |> Map.tryFind aggregate
+    |> Option.defaultValue []
 
 let initialize (): EventStore<'Event> =
+
     let mailbox =
         MailboxProcessor.Start(fun inbox ->
             let rec innerLoop history =
+                let getEventsFor = streamEventsFrom history
+
                 async {
                     match! inbox.Receive() with
-                    | Append events -> return! innerLoop (history @ events)
+                    | Append (aggregate, newEvents) ->
+                        let newHistory =
+                            history
+                            |> Map.add aggregate (getEventsFor aggregate @ newEvents)
+
+                        return! innerLoop newHistory
                     | Get channel ->
                         channel.Reply history
                         return! innerLoop history
-                    | Evolve eventProducer ->
-                        let newEvents = eventProducer history
-                        return! innerLoop (history @ newEvents)
+                    | GetStream (aggregate, channel) ->
+                        channel.Reply <| getEventsFor aggregate
+                        return! innerLoop history
+                    | Evolve (aggregate, eventProducer) ->
+                        let streamEvents = getEventsFor aggregate
+                        let newEvents = eventProducer streamEvents
+
+                        let newHistory =
+                            history
+                            |> Map.add aggregate (streamEvents @ newEvents)
+
+                        return! innerLoop newHistory
                 }
 
-            innerLoop [])
+            innerLoop Map.empty)
 
     let get () = mailbox.PostAndReply Get
-    let append events = events |> Append |> mailbox.Post
-    let evolve eventProducer = mailbox.Post(Evolve eventProducer)
+
+    let getStream aggregate =
+        mailbox.PostAndReply(fun channel -> GetStream(aggregate, channel))
+
+    let append aggregate events =
+        Append(aggregate, events) |> mailbox.Post
+
+    let evolve aggregate eventProducer =
+        Evolve(aggregate, eventProducer) |> mailbox.Post
 
     { Get = get
       Append = append
-      Evolve = evolve }
+      Evolve = evolve
+      GetStream = getStream }

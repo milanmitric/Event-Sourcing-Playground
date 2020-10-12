@@ -6,5 +6,5 @@ let Given = id
 
 let When eventProducer events = eventProducer events
 
-let Then expectedEvents actualEvents =
+let Then actualEvents expectedEvents =
     expectedEvents |> should equal actualEvents

@@ -20,9 +20,9 @@ let ``Append single event`` () =
     sipovoRemote
     |> RemoteWentOnline
     |> List.singleton
-    |> eventStore.Append
+    |> eventStore.Append sipovoAggregate
 
-    eventStore.Get()
+    eventStore.GetStream sipovoAggregate
     |> should equal [ RemoteWentOnline sipovoRemote ]
 
 [<Fact>]
@@ -34,6 +34,6 @@ let ``Append multiple events`` () =
           sipovoRemote |> RemoteWentOnline
           sipovoRemote |> RemoteWasScanned ]
 
-    eventStore.Append events
+    eventStore.Append sipovoAggregate events
 
-    eventStore.Get() |> should equal events
+    eventStore.GetStream sipovoAggregate |> should equal events

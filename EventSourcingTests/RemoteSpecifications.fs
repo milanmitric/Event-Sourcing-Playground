@@ -1,4 +1,4 @@
-module RemoteSpecifications.fs
+module RemoteSpecifications
 
 open Domain
 open Domain.Behaviour
