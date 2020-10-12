@@ -1,8 +1,6 @@
 module Infrastructure
 
-type EventStore<'Event> =
-    { Get: unit -> 'Event list
-      Append: 'Event list -> unit }
+open Domain
 
 type private Msg<'Event> =
     | Append of 'Event list
@@ -27,11 +25,3 @@ let initialize (): EventStore<'Event> =
     let append events = events |> Append |> mailbox.Post
 
     { Get = get; Append = append }
-
-type Projection<'State, 'Event> =
-    { Init: 'State
-      Update: 'State -> 'Event -> 'State }
-
-let project (projection: Projection<_, _>) events =
-    events
-    |> List.fold projection.Update projection.Init
