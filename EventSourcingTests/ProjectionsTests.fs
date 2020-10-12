@@ -5,38 +5,35 @@ open Domain.Core
 open Xunit
 open FsUnit.Xunit
 open Projections
+open TestData
 
 [<Fact>]
 let ``Project into remote scan statistics`` () =
-    let remoteSipovo = Remote "Sipovo"
-
     let events =
-        [ remoteSipovo |> RemoteWasScanned
-          remoteSipovo |> RemoteWasScanned
-          remoteSipovo |> RemoteWasScanned ]
+        [ sipovoRemote |> RemoteWasScanned
+          sipovoRemote |> RemoteWasScanned
+          sipovoRemote |> RemoteWasScanned ]
 
     let scanStatistics = events |> project toScanStatistics
 
     scanStatistics.Count |> should equal 1
     scanStatistics
-    |> Map.find remoteSipovo
+    |> Map.find sipovoRemote
     |> should equal 3
 
 [<Fact>]
 let ``Project into remote current state`` () =
-    let remoteSipovo = Remote "Sipovo"
-    let remoteBrod = Remote "Brod"
     let events =
-        [ remoteSipovo |> RemoteWentOffline
-          remoteSipovo |> RemoteWentOnline
-          remoteBrod |> RemoteWentOffline ]
+        [ sipovoRemote |> RemoteWentOffline
+          sipovoRemote |> RemoteWentOnline
+          brodRemote |> RemoteWentOffline ]
 
     let remoteStatus = events |> project toRemoteStatus
 
     remoteStatus.Count |> should equal 2
     remoteStatus
-    |> Map.find remoteSipovo
+    |> Map.find sipovoRemote
     |> should equal Online
     remoteStatus
-    |> Map.find remoteBrod
+    |> Map.find brodRemote
     |> should equal Offline
