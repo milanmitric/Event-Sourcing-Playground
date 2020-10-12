@@ -22,7 +22,22 @@ let countScanStatistics state event =
         Map.add remote (scanCount + 1) state
     | _ -> state
 
-let scanStatistics : Projection<Map<Remote, int>, Event> =
+let updateRemoteStatus state event =
+    match event with 
+    | RemoteWentOnline remote ->
+        state |> Map.add remote Online
+    | RemoteWentOffline remote ->
+        state |> Map.add remote Offline
+    | _ -> state
+
+
+let toRemoteStatus : Projection<Map<Remote, RemoteStatus>, Event> =
+    {
+        Init = Map.empty
+        Update = updateRemoteStatus
+    }
+
+let toScanStatistics : Projection<Map<Remote, int>, Event> =
     {
        Init = Map.empty
        Update = countScanStatistics
