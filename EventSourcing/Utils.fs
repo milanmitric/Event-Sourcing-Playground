@@ -1,12 +1,19 @@
 module Utils
 
-let printUl list =
-    list
-    |> List.iteri (fun i item -> printfn " %i: %A" (i + 1) item)
+open Domain.Core
 
-let printEvents events =
+
+let printRemoteEvents remote events: unit=
+    printf "Remote: %A" remote
+
+    events 
+    |> List.map (fun event -> event.ToString())
+    |> List.reduce (+)
+    |> printfn "%A"
+
+let printEventStore (eventStore: EventStore<'Event>) =
+    let events = eventStore.Get()
+
     events
-    |> List.length
-    |> printfn "History (Length: %i)"
+    |> Map.iter printRemoteEvents
 
-    events |> printUl
