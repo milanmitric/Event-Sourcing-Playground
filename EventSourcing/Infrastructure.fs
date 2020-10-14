@@ -1,6 +1,6 @@
 module Infrastructure
 
-open Domain.Core
+open Core
 
 type private Msg<'Event> =
     | Append of Aggregate * 'Event list

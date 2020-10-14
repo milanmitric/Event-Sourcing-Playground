@@ -1,10 +1,12 @@
 module EventStoreTests
 
-open Infrastructure
-open Domain
-open Domain.Core
 open Xunit
 open FsUnit.Xunit
+
+open Core
+open Infrastructure
+open DomainTypes
+
 open TestData
 
 [<Fact>]
@@ -28,7 +30,6 @@ let ``Append single event`` () =
 [<Fact>]
 let ``Append multiple events`` () =
     let eventStore = initialize ()
-
     let events =
         [ sipovoRemote |> RemoteWentOffline
           sipovoRemote |> RemoteWentOnline
@@ -36,4 +37,18 @@ let ``Append multiple events`` () =
 
     eventStore.Append sipovoAggregate events
 
+    eventStore.GetStream sipovoAggregate |> should equal events
+
+[<Fact>]
+let ``Evolve events`` () =
+    let eventStore = initialize ()
+    let events =
+        [ sipovoRemote |> RemoteWentOffline
+          sipovoRemote |> RemoteWentOnline
+          sipovoRemote |> RemoteWasScanned ]
+    let testEventProducer (_: Event list) =
+        events
+
+    eventStore.Evolve sipovoAggregate testEventProducer 
+    
     eventStore.GetStream sipovoAggregate |> should equal events

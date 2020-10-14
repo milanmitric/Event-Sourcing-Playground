@@ -1,6 +1,6 @@
 module Utils
 
-open Domain.Core
+open Core
 
 
 let printRemoteEvents remote events: unit=

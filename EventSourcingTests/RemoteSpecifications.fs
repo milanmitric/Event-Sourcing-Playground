@@ -1,10 +1,11 @@
 module RemoteSpecifications
 
-open Domain
-open Domain.Behaviour
-open FsUnit
-open TestData
 open Xunit
+
+open DomainTypes
+open DomainBehaviour
+
+open TestData
 open TestInfrastructure
 
 [<Fact>]

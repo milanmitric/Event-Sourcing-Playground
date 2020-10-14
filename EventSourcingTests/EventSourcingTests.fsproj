@@ -13,8 +13,8 @@
     <Compile Include="EventStoreTests.fs" />
     <Compile Include="ProjectionsTests.fs" />
     <Compile Include="RemoteSpecifications.fs" />
+    <Compile Include="IntegrationTests.fs" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
     <PackageReference Include="xunit" Version="2.4.1" />

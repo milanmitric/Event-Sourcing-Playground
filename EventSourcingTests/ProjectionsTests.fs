@@ -1,10 +1,13 @@
 module ProjectionsTests
 
-open Domain
-open Domain.Core
 open Xunit
 open FsUnit.Xunit
+
+open Core
+open DomainTypes
+open DomainBehaviour
 open Projections
+
 open TestData
 
 [<Fact>]
