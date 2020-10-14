@@ -10,6 +10,7 @@ type Event =
     | RemoteWentOnline of Remote
     | RemoteWasAlreadyOnline of Remote
     | RemoteWentOffline of Remote
+    | RemoteWasAlreadyOffline of Remote
     | RemoteWasScanned of Remote
     | RemoteWasNotFound of Remote
 
@@ -70,3 +71,11 @@ module Behaviour =
         match currentState |> Map.tryFind remote with
         | Some state -> if state = Online then [ RemoteWasAlreadyOnline remote ] else [ RemoteWentOnline remote ]
         | None -> [ RemoteWasNotFound remote ]
+
+    let offScan remote events =
+        let statusOfRemotes = 
+            events |> Core.project Projections.toRemoteStatus
+
+        match statusOfRemotes |> Map.tryFind remote with
+        | Some state -> if state = Offline then [RemoteWasAlreadyOffline remote] else [RemoteWentOffline remote]
+        | None -> [RemoteWasNotFound remote]
